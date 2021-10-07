@@ -6,6 +6,7 @@ import { LoginForm } from '../interfaces/login-form.interface';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { Usuario } from '../models/usuario.model';
 
 declare const gapi: any;
 
@@ -18,6 +19,15 @@ export class UsuariosService {
 
   public auth2: any;
 
+  public usuario!: Usuario;
+
+  get token(){
+    return localStorage.getItem('token') || '';
+  }
+  get uid(){
+    return this.usuario.uid || '';
+  }
+
   constructor( 
     private http: HttpClient,
     private router: Router,
@@ -25,7 +35,6 @@ export class UsuariosService {
   ) { 
     this.googleApiInit();
   }
-
 
   googleApiInit(){
     return new Promise( (resolve:any): void =>  {
@@ -46,15 +55,18 @@ export class UsuariosService {
   renewToken(): Observable<boolean>{
 
     const url = `${this.base_url}/login/renew`;
-    const token = localStorage.getItem('token') || '';
 
     return this.http.get( url, {
       headers:{
-        'x-token': token
+        'x-token': this.token
       }
     }).pipe(
-      tap( (res:any) => localStorage.setItem('token', res.token)),
-      map( res => true ),
+      map( (res: any) => {
+        localStorage.setItem('token', res.token)
+        const { email, img = '', nombre, google, role, uid } = res.usuario;
+        this.usuario = new Usuario( nombre, '', role, email, google, img, uid );
+        return true;
+      }),
       catchError( err => of(false) )
     )
 
@@ -65,6 +77,22 @@ export class UsuariosService {
     const url = `${this.base_url}/usuarios`;
     
     return this.http.post(url, formData);
+
+  }
+
+  actuaalizarUsuario( data : { nombre:string,email: string, role: string }){
+    const url = `${this.base_url}/usuarios/${this.uid}`;
+
+    data = {
+      ...data,
+      role: this.usuario.role
+    };
+
+    return this.http.put( url , data, {
+      headers: {
+        'x-token': this.token
+      }
+    });
 
   }
 
