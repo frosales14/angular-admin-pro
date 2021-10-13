@@ -7,3 +7,14 @@
     display: flex;
     justify-content: center;
 }
+
+.w100{
+    width: 100px;
+}
+
+.avatar{
+    width: 45px;
+    height: 45px;
+    border-radius: 100%;
+    object-fit: cover;
+}

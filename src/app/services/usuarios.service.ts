@@ -7,6 +7,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { Usuario } from '../models/usuario.model';
+import { CargarUsuarios } from '../interfaces/load-users.interface';
 
 declare const gapi: any;
 
@@ -26,6 +27,14 @@ export class UsuariosService {
   }
   get uid(){
     return this.usuario.uid || '';
+  }
+
+  get headers(){
+    return {
+      headers:{
+        'x-token': this.token
+      }
+    }
   }
 
   constructor( 
@@ -124,4 +133,24 @@ export class UsuariosService {
     });
   }
 
+  getUsuarios( desde: number = 0 ){
+    const url = `${this.base_url}/usuarios?desde=${desde}`;
+
+    return this.http.get<CargarUsuarios>( url, this.headers )
+      .pipe( map( resp =>  {
+        const usuarios = resp.usuarios
+          .map( user => new Usuario( user.nombre, '', user.role, user.email, user.google, user.img, user.uid ));
+        
+        return {
+          total: resp.total,
+          usuarios
+        }
+      }))
+  }
+
+  borrarUsuario( usuario: Usuario ){
+    const url = `${this.base_url}/usuarios/${usuario.uid}`
+
+    return this.http.delete( url, this.headers )
+  }
 }
