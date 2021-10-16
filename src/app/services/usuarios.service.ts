@@ -97,11 +97,7 @@ export class UsuariosService {
       role: this.usuario.role
     };
 
-    return this.http.put( url , data, {
-      headers: {
-        'x-token': this.token
-      }
-    });
+    return this.http.put( url , data, this.headers);
 
   }
 
@@ -152,5 +148,12 @@ export class UsuariosService {
     const url = `${this.base_url}/usuarios/${usuario.uid}`
 
     return this.http.delete( url, this.headers )
+  }
+
+  cambiarRole( usuario: Usuario ){
+    const url = `${this.base_url}/usuarios/${usuario.uid}`;
+
+    return this.http.put( url , usuario, this.headers);
+
   }
 }

@@ -1,0 +1,44 @@
+
+<div 
+    class="fondo-modal animated fadeIn fast"
+    [class.oculto] = "modalService.ocultarModal">
+    <div
+        class="modal fade show" 
+        tabindex="-1" 
+        role="dialog"
+        aria-labelledby="myModalLabel" 
+        style="display: block; padding-right: 17px;">
+        
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Modal Content is Responsive</h4>
+                    <button 
+                        type="button" 
+                        class="close" 
+                        data-dismiss="modal" 
+                        aria-hidden="true"
+                        (click)="cerrarModal()">
+                        ×
+                    </button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="contenedor-imagen text-center mb-4">
+                        <img *ngIf="!imagenTemp" [src]="modalService.img" alt="" class="img-perfil">
+                        <img *ngIf="imagenTemp" [src]="imagenTemp" alt="" class="img-perfil">
+                    </div>
+        
+                    <input type="file"
+                            (change) = "cambiarImagen($event)">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" (click)="cerrarModal()" class="btn btn-default waves-effect" data-dismiss="modal">Cancelar</button>
+                    <button type="button" (click)="subirImagen()" class="btn btn-danger waves-effect waves-light">Cargar Imagen</button>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</div>

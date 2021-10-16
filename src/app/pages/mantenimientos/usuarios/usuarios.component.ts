@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UsuariosService } from '../../../services/usuarios.service';
 import { Usuario } from '../../../models/usuario.model';
 import { BusquedasService } from '../../../services/busquedas.service';
 import Swal from 'sweetalert2';
+import { ModalService } from '../../../services/modal.service';
+import { pipe, Subscription } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-usuarios',
@@ -10,20 +13,35 @@ import Swal from 'sweetalert2';
   styles: [
   ]
 })
-export class UsuariosComponent implements OnInit {
+export class UsuariosComponent implements OnInit, OnDestroy {
 
-  totalUsuarios : number = 0;
   desde         : number = 0;
+  loading       : boolean = false;
+  imgSubs       : Subscription = new Subscription();
+  totalUsuarios : number = 0;
   usuarios      : Usuario[] = [];
   usuariosTemp  : Usuario[] = [];
-  loading       : boolean = false;
   valor         : string = '';
 
-  constructor( private userService: UsuariosService,
-                private busquedaService: BusquedasService ) { }
+
+  constructor( 
+    private userService: UsuariosService,
+    private busquedaService: BusquedasService,
+    private modalService: ModalService 
+  ) { }
+  
 
   ngOnInit( ) {
     this.getUsuarios();
+    this.subscribeImagenSubida();
+  }
+
+  subscribeImagenSubida(){
+    this.imgSubs = this.modalService.imagenSubida
+        .pipe(delay(100))
+        .subscribe( img => {
+          this.getUsuarios();
+        });
   }
 
   getUsuarios( ){
@@ -92,4 +110,21 @@ export class UsuariosComponent implements OnInit {
     })
   }
 
+  cambiarRole( usuario: Usuario ){
+    this.userService.cambiarRole(usuario)
+        .subscribe( resp => {
+          console.log(resp);
+        })
+  }
+
+  abirModal( usuario: Usuario ){
+    console.log(usuario.img);
+    
+    this.modalService.abrirModal('usuarios',usuario.uid,usuario.img);
+  }
+
+
+  ngOnDestroy(){
+    this.imgSubs.unsubscribe();
+  }
 }
